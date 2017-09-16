@@ -8,11 +8,11 @@ package org.usfirst.frc.team687.robot;
  */
 public class RobotMap {
 	//Model Parameters
-	public static double K = 0;
-	public static double tau = 0; //amount of time to get 63.2% of yss-yinit
+	public static double K = 1;
+	public static double tau = 1; //amount of time to get 63.2% of yss-yinit
 	
 	//Signal Generator
-	public static double amplitude = 0;
-	public static double frequency = 0;
-	public static double offset = 0;
+	public static double amplitude = 1;
+	public static double frequency = 0.4;
+	public static double offset = 1;
 }

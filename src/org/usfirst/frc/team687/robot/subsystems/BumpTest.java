@@ -10,24 +10,28 @@ import edu.wpi.first.wpilibj.command.Subsystem;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
- *
+ * Questions for next time!
+ * How to get t_1 from y(t_1) w/o viewing graph?
+ * How to display motor output in rad/v/s?
+ * Need to test values for ideal output.
  */
 public class BumpTest extends Subsystem {
 
 	CANTalon motor;
-	Timer timer;
-	Timer running_clock;
+	double timer_int;
+	double running_clock;
 	double y_of_t1;
 	
 	double kU;
 	double Yss;
 	double Yinit;
 	double calculated_K;
+	double calculated_tau;
 	double ideal_motor_output;
 	double time_intervals;
 	
 	public BumpTest(){
-		motor = new CANTalon(1);
+		motor = new CANTalon(0);
     	motor.changeControlMode(TalonControlMode.Voltage);
 	}
 	
@@ -38,25 +42,25 @@ public class BumpTest extends Subsystem {
     
     public void BumpTestRun(){
     	SmartDashboard.putNumber("Current (A)", motor.getOutputCurrent());
-    	if (timer.get() <= time_intervals){ //timer.get() double?
+    	SmartDashboard.putNumber("Voltage (V)", motor.getOutputVoltage());
+    	if (Timer.getFPGATimestamp() - timer_int<= time_intervals){
     		motor.set(RobotMap.offset + RobotMap.amplitude);
-    		ideal_motor_output = (Math.pow((double)Math.E, (double)(-running_clock.get()/RobotMap.tau))) * Yss + Yinit;
-        	SmartDashboard.putNumber("Speed (rad/s)", ideal_motor_output);
-    	} else if(timer.get() > time_intervals){
+    		ideal_motor_output = (1 - (Math.pow(Math.E, -(Timer.getFPGATimestamp() - running_clock)/RobotMap.tau))) * Yss + Yinit;
+    	} else if(Timer.getFPGATimestamp() - timer_int> time_intervals){
     		motor.set(RobotMap.offset);
-    		ideal_motor_output = (1-(Math.pow((double)Math.E, (double)(-running_clock.get()/RobotMap.tau)))) * Yss + Yinit;
-        	SmartDashboard.putNumber("Speed (rad/s)", ideal_motor_output);
-    		if (timer.get() >= time_intervals * 2){
-    			timer.reset();
+    		ideal_motor_output = (Math.pow(Math.E, -(Timer.getFPGATimestamp() - running_clock)/RobotMap.tau)) * Yss + Yinit;
+    		if (Timer.getFPGATimestamp() - timer_int>= time_intervals * 2){
+    			timer_int= Timer.getFPGATimestamp();
     		}
     	}
+    	SmartDashboard.putNumber("Ideal Motor Speed rad-s", ideal_motor_output);
     }
     	
     	//To calculate Yinit you need to find K, but to find K, you need Y init???????
     
     public void reset(){
-    	timer.start();
-    	running_clock.start();
+    	timer_int = Timer.getFPGATimestamp();
+    	running_clock = Timer.getFPGATimestamp();
     	Yinit = RobotMap.offset * RobotMap.K; //THERE IS MORE! convert offset (V) to rad/s
     	Yss = RobotMap.amplitude * RobotMap.K; //THERE IS MORE! convert amplitude (V) to rad/s
     	time_intervals = 1/RobotMap.frequency;
@@ -64,20 +68,18 @@ public class BumpTest extends Subsystem {
     	//QUESTION: How to convert Voltage to rad/s
     	
     	//calculation of tuning values
-//    	y_of_t1 = (1-Math.pow((double)Math.E, (double)-1)) * Yss + Yinit; //y(t_1) - yinit should be 63.2% of yss - yinit?
-//    	SmartDashboard.putNumber("y_of_t1", y_of_t1);
+    	y_of_t1 = (1-Math.pow((double)Math.E, (double)-1)) * Yss + Yinit; //y(t_1) - yinit should be 63.2% of yss - yinit?
+    	SmartDashboard.putNumber("y_of_t1", y_of_t1);
     	
-//    	calculated_K = (Yss - Yinit)/(RobotMap.amplitude - RobotMap.offset);
-//    	SmartDashboard.putNumber("Calculated K", calculated_K);
+    	calculated_K = (Yss - Yinit)/(RobotMap.amplitude - RobotMap.offset);
+    	SmartDashboard.putNumber("Calculated K", calculated_K);
     	//don't forget to manually calculate for calculated_tau!
 //    	calculated_tau = t_1 - t_0;
     }
-
-//    private double getRPM(CANTalon m_motor){
-//    	m_motor.
-//    	m_motor.changeControlMode(TalonControlMode.Speed);
-//    	return m_motor.getSpeed();
-//    }
+    
+    public void MotorOff() {
+    	motor.set(0);
+    }
     
     public void updateDashboard(){
     	//Model Parameters
@@ -95,8 +97,7 @@ public class BumpTest extends Subsystem {
     	SmartDashboard.putNumber("Offset (V)", RobotMap.offset);
         	
     	//Graphs
-    	SmartDashboard.putNumber("Voltage (V)", motor.getOutputVoltage());
-    	SmartDashboard.putNumber("Actual RPM", ideal_motor_output); //rad/s!
+//    	SmartDashboard.putNumber("Actual RPM", ideal_motor_output); //rad/s!
 //    	SmartDashboard.putNumber("RPM Error", getError());
     }   
 }
