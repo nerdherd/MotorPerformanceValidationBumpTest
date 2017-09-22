@@ -31,7 +31,7 @@ public class BumpTest extends Subsystem {
 	double time_intervals;
 	
 	public BumpTest(){
-		motor = new CANTalon(0);
+		motor = new CANTalon(RobotMap.CANTalonPort1);
     	motor.changeControlMode(TalonControlMode.Voltage);
 	}
 	
@@ -54,6 +54,7 @@ public class BumpTest extends Subsystem {
     		}
     	}
     	SmartDashboard.putNumber("Ideal Motor Speed rad-s", ideal_motor_output);
+    	SmartDashboard.putNumber("Motor Output rad-s", RPMtoRadPerSec(motor.getSpeed() * 600 / RobotMap.encoderticks));
     }
     	
     	//To calculate Yinit you need to find K, but to find K, you need Y init???????
@@ -61,24 +62,28 @@ public class BumpTest extends Subsystem {
     public void reset(){
     	timer_int = Timer.getFPGATimestamp();
     	running_clock = Timer.getFPGATimestamp();
-    	Yinit = RobotMap.offset * RobotMap.K; //THERE IS MORE! convert offset (V) to rad/s
-    	Yss = RobotMap.amplitude * RobotMap.K; //THERE IS MORE! convert amplitude (V) to rad/s
+    	Yinit = RobotMap.offset * RobotMap.K; //converts to what?
+    	Yss = RobotMap.amplitude * RobotMap.K;//converts to what?
     	time_intervals = 1/RobotMap.frequency;
     	//Yss is the rad/s of amplitude (V) and Yinit is the rad/s of Offset (V)
     	//QUESTION: How to convert Voltage to rad/s
     	
     	//calculation of tuning values
-    	y_of_t1 = (1-Math.pow((double)Math.E, (double)-1)) * Yss + Yinit; //y(t_1) - yinit should be 63.2% of yss - yinit?
+    	y_of_t1 = (1-Math.pow((double)Math.E, (double)-1)) * Yss + Yinit;
     	SmartDashboard.putNumber("y_of_t1", y_of_t1);
     	
     	calculated_K = (Yss - Yinit)/(RobotMap.amplitude - RobotMap.offset);
     	SmartDashboard.putNumber("Calculated K", calculated_K);
     	//don't forget to manually calculate for calculated_tau!
-//    	calculated_tau = t_1 - t_0;
+    	//calculated_tau = t_1 - t_0;
     }
     
     public void MotorOff() {
     	motor.set(0);
+    }
+    
+    private double RPMtoRadPerSec(double value){
+    	return value * Math.PI / 60;
     }
     
     public void updateDashboard(){
@@ -96,8 +101,5 @@ public class BumpTest extends Subsystem {
     	RobotMap.offset = SmartDashboard.getNumber("Offset (V)", RobotMap.offset);
     	SmartDashboard.putNumber("Offset (V)", RobotMap.offset);
         	
-    	//Graphs
-//    	SmartDashboard.putNumber("Actual RPM", ideal_motor_output); //rad/s!
-//    	SmartDashboard.putNumber("RPM Error", getError());
     }   
 }

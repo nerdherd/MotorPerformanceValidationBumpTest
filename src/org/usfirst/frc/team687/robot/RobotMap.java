@@ -15,4 +15,10 @@ public class RobotMap {
 	public static double amplitude = 1;
 	public static double frequency = 0.4;
 	public static double offset = 1;
+	
+	//Ports
+	public static int CANTalonPort1 = 0;
+	
+	//Robot
+	public static double encoderticks = 1024;
 }
