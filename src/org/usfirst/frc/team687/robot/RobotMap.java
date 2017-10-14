@@ -8,8 +8,8 @@ package org.usfirst.frc.team687.robot;
  */
 public class RobotMap {
 	//Model Parameters
-	public static double K = 1;
-	public static double tau = 1; //amount of time to get 63.2% of yss-yinit
+	public static double K = 216; // rad/V.s
+	public static double tau = 0.7; //amount of time to get 63.2% of yss-yinit
 	
 	//Signal Generator
 	public static double amplitude = 1;
@@ -18,7 +18,4 @@ public class RobotMap {
 	
 	//Ports
 	public static int CANTalonPort1 = 0;
-	
-	//Robot
-	public static double encoderticks = 1024;
 }

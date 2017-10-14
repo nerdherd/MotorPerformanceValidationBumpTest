@@ -3,6 +3,7 @@ package org.usfirst.frc.team687.robot.subsystems;
 import org.usfirst.frc.team687.robot.RobotMap;
 
 import com.ctre.CANTalon;
+import com.ctre.CANTalon.FeedbackDevice;
 import com.ctre.CANTalon.TalonControlMode;
 
 import edu.wpi.first.wpilibj.Timer;
@@ -19,7 +20,7 @@ public class BumpTest extends Subsystem {
 
 	CANTalon motor;
 	double timer_int;
-	double running_clock;
+	double relative_running_clock;
 	double y_of_t1;
 	
 	double kU;
@@ -29,10 +30,15 @@ public class BumpTest extends Subsystem {
 	double calculated_tau;
 	double ideal_motor_output;
 	double time_intervals;
+	boolean positive_counter;
+	boolean negative_counter;
 	
 	public BumpTest(){
 		motor = new CANTalon(RobotMap.CANTalonPort1);
-    	motor.changeControlMode(TalonControlMode.Voltage);
+		motor.changeControlMode(TalonControlMode.Voltage);
+		motor.setFeedbackDevice(FeedbackDevice.CtreMagEncoder_Relative);
+		motor.reverseOutput(true);
+		motor.reverseSensor(true);
 	}
 	
     public void initDefaultCommand() {
@@ -41,29 +47,48 @@ public class BumpTest extends Subsystem {
     }
     
     public void BumpTestRun(){
-    	SmartDashboard.putNumber("Current (A)", motor.getOutputCurrent());
+	SmartDashboard.putNumber("Current (A)", motor.getOutputCurrent());
     	SmartDashboard.putNumber("Voltage (V)", motor.getOutputVoltage());
     	if (Timer.getFPGATimestamp() - timer_int<= time_intervals){
+    		if (positive_counter){
+    			relative_running_clock = Timer.getFPGATimestamp();
+    			positive_counter = false;
+    		}
+    		//generate motor output
     		motor.set(RobotMap.offset + RobotMap.amplitude);
-    		ideal_motor_output = (1 - (Math.pow(Math.E, -(Timer.getFPGATimestamp() - running_clock)/RobotMap.tau))) * Yss + Yinit;
+    		
+    		//generate exponential decay function to maximum value
+    		ideal_motor_output = ((1 - (Math.pow(Math.E, -(Timer.getFPGATimestamp() - relative_running_clock)/RobotMap.tau))) * Yss + Yinit) / 3;
+    		
     	} else if(Timer.getFPGATimestamp() - timer_int> time_intervals){
+    		if (negative_counter){
+    			relative_running_clock = Timer.getFPGATimestamp();
+    			negative_counter = false;
+    		}
+    		//generate motor output
     		motor.set(RobotMap.offset);
-    		ideal_motor_output = (Math.pow(Math.E, -(Timer.getFPGATimestamp() - running_clock)/RobotMap.tau)) * Yss + Yinit;
+    		
+    		//generate exponential decay function to minimum value
+    		ideal_motor_output = ((Math.pow(Math.E, -(Timer.getFPGATimestamp() - relative_running_clock)/RobotMap.tau)) * Yss + Yinit) / 3;
     		if (Timer.getFPGATimestamp() - timer_int>= time_intervals * 2){
     			timer_int= Timer.getFPGATimestamp();
+    			negative_counter = true;
+    			positive_counter = true;
     		}
-    	}
+}
     	SmartDashboard.putNumber("Ideal Motor Speed rad-s", ideal_motor_output);
-    	SmartDashboard.putNumber("Motor Output rad-s", RPMtoRadPerSec(motor.getSpeed() * 600 / RobotMap.encoderticks));
+    	SmartDashboard.putNumber("Motor Output rad-s", RPMtoRadPerSec(motor.getSpeed()) * 3);
     }
     	
     	//To calculate Yinit you need to find K, but to find K, you need Y init???????
     
     public void reset(){
+	positive_counter = true;
+    	positive_counter = true;
     	timer_int = Timer.getFPGATimestamp();
-    	running_clock = Timer.getFPGATimestamp();
+    	relative_running_clock = Timer.getFPGATimestamp();
     	Yinit = RobotMap.offset * RobotMap.K; //converts to what?
-    	Yss = RobotMap.amplitude * RobotMap.K;//converts to what?
+    	Yss = (RobotMap.amplitude + RobotMap.offset) * RobotMap.K;//converts to what?
     	time_intervals = 1/RobotMap.frequency;
     	//Yss is the rad/s of amplitude (V) and Yinit is the rad/s of Offset (V)
     	//QUESTION: How to convert Voltage to rad/s
@@ -83,7 +108,7 @@ public class BumpTest extends Subsystem {
     }
     
     private double RPMtoRadPerSec(double value){
-    	return value * Math.PI / 60;
+    	return value * 2 * Math.PI / 60;
     }
     
     public void updateDashboard(){
