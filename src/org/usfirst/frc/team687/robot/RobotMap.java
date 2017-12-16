@@ -8,7 +8,7 @@ package org.usfirst.frc.team687.robot;
  */
 public class RobotMap {
 	//Model Parameters
-//	public static double K = 216; // rad/V.s
+	public static double K = 216; // rad/V.s
 	public static double tau = 1.2; //amount of time to get 63.2% of yss-yinit
 	
 	//Signal Generator
