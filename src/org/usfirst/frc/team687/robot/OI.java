@@ -1,7 +1,7 @@
 package org.usfirst.frc.team687.robot;
 
-import org.usfirst.frc.team687.robot.commands.BumpTestCalibrationTest;
-import org.usfirst.frc.team687.robot.commands.BumpTestCalibrationCalibration;
+import org.usfirst.frc.team687.robot.commands.MotorCalibration;
+import org.usfirst.frc.team687.robot.commands.MotorTest;
 
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.buttons.JoystickButton;
@@ -20,10 +20,10 @@ public class OI {
 		joy = new Joystick(0);
 		
 		bump_test = new JoystickButton(joy, 1);
-		bump_test.whileHeld(new BumpTestCalibrationCalibration());
+		bump_test.whileHeld(new MotorTest());
 		
 		bump_test_calibration = new JoystickButton(joy, 2);
-		bump_test_calibration.whenPressed(new BumpTestCalibrationTest());
+		bump_test_calibration.whenPressed(new MotorCalibration());
 	}
 	
 	//// CREATING BUTTONS

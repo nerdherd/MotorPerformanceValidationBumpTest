@@ -8,8 +8,8 @@ import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-import org.usfirst.frc.team687.robot.subsystems.BumpTestCalibrate;
-import org.usfirst.frc.team687.robot.subsystems.BumpTestTest;
+import org.usfirst.frc.team687.robot.subsystems.MotorCalibration;
+import org.usfirst.frc.team687.robot.subsystems.MotorTest;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -20,8 +20,8 @@ import org.usfirst.frc.team687.robot.subsystems.BumpTestTest;
  */
 public class Robot extends IterativeRobot {
 
-	public static BumpTestCalibrate bumpTestCalibrate;
-	public static BumpTestTest bumpTestTest;
+	public static MotorCalibration calibrator;
+	public static MotorTest tester;
 	public static OI oi;
 
 	Command autonomousCommand;
@@ -33,8 +33,8 @@ public class Robot extends IterativeRobot {
 	 */
 	@Override
 	public void robotInit() {
-		bumpTestCalibrate = new BumpTestCalibrate();
-		bumpTestTest = new BumpTestTest();
+		calibrator = new MotorCalibration();
+		tester = new MotorTest();
 		oi = new OI();
 		
 //		chooser.addDefault("Default Auto", new ExampleCommand());
@@ -108,7 +108,6 @@ public class Robot extends IterativeRobot {
 	@Override
 	public void teleopPeriodic() {
 		Scheduler.getInstance().run();
-		bumpTestCalibrate.updateDashboard();
 	}
 
 	/**

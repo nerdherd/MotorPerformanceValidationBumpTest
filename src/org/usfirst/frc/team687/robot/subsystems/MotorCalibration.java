@@ -12,10 +12,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
  */
-public class BumpTest extends Subsystem {
+public class MotorCalibration extends Subsystem {
 
 	CANTalon motor;
-	double K;
 	double timer_int;
 	double relative_running_clock;
 	double y_of_t1;
@@ -29,7 +28,7 @@ public class BumpTest extends Subsystem {
 	boolean positive_counter;
 	boolean negative_counter;
 	
-	public BumpTest(){
+	public MotorCalibration(){
 		motor = new CANTalon(RobotMap.CANTalonPort1);
 		motor.changeControlMode(TalonControlMode.Voltage);
 		motor.setFeedbackDevice(FeedbackDevice.CtreMagEncoder_Relative);
@@ -65,7 +64,7 @@ public class BumpTest extends Subsystem {
     		motor.set(RobotMap.offset - RobotMap.amplitude);
     		
     		//generate exponential decay function to minimum value
-    		ideal_motor_output = ((Math.pow(Math.E, -(Timer.getFPGATimestamp() - relative_running_clock)/RobotMap.tau)) * Yss + Yinit - (RobotMap.amplitude*K)) / 3;
+    		ideal_motor_output = ((Math.pow(Math.E, -(Timer.getFPGATimestamp() - relative_running_clock)/RobotMap.tau)) * Yss + Yinit - (RobotMap.amplitude*RobotMap.K)) / 3;
     		if (Timer.getFPGATimestamp() - timer_int>= time_intervals * 2){
     			timer_int= Timer.getFPGATimestamp();
     			negative_counter = true;
@@ -81,22 +80,17 @@ public class BumpTest extends Subsystem {
 		negative_counter = true;
 	   	timer_int = Timer.getFPGATimestamp();
 	   	relative_running_clock = Timer.getFPGATimestamp();
-	   	
-	   	K = (-7.62367 * Math.pow(RobotMap.amplitude, 2)) + (90.75566 * RobotMap.amplitude) + 144.58255;
-	   	
-	   	Yinit = (RobotMap.offset) * K;
-    	Yss = (RobotMap.amplitude + RobotMap.offset) * K;
+	   		   	
+	   	Yinit = (RobotMap.offset) * RobotMap.K;
+    	Yss = (RobotMap.amplitude + RobotMap.offset) * RobotMap.K;
     	time_intervals = 1/RobotMap.frequency;
     	
-    	//calculation of tuning values
     	y_of_t1 = (1-Math.pow((double)Math.E, (double)-1)) * Yss + Yinit;
     	SmartDashboard.putNumber("y_of_t1", y_of_t1);
     	
-    	//uncomment for recalibrating K/ retuning
-//    	calculated_K = (Yss - Yinit)/(RobotMap.amplitude);
-//    	calculated_K = (-7.62367 * Math.pow(RobotMap.amplitude, 2)) + (90.75566 * RobotMap.amplitude) + 144.58255;
-//    	SmartDashboard.putNumber("Calculated K", calculated_K);
-    	
+    	calculated_K = (Yss - Yinit)/(RobotMap.amplitude);
+    	SmartDashboard.putNumber("Calculated K", calculated_K);
+    	    	
     	//don't forget to manually calculate for calculated_tau!
     	//calculated_tau = t_1 - t_0;
     }
@@ -111,8 +105,8 @@ public class BumpTest extends Subsystem {
     
     public void updateDashboard(){
     	//Model Parameters
-//    	K = SmartDashboard.getNumber("K", K); //for calibrating K
-    	SmartDashboard.putNumber("K", K);
+    	RobotMap.K = SmartDashboard.getNumber("K", RobotMap.K);
+    	SmartDashboard.putNumber("K", RobotMap.K);
     	RobotMap.tau = SmartDashboard.getNumber("tau", RobotMap.tau);
     	SmartDashboard.putNumber("tau", RobotMap.tau);
     	

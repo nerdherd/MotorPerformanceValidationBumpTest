@@ -7,26 +7,28 @@ import edu.wpi.first.wpilibj.command.Command;
 /**
  *
  */
-public class BumpTestCalibrationCalibration extends Command {
+public class MotorCalibration extends Command {
 
-    public BumpTestCalibrationCalibration() {
+    public MotorCalibration() {
         // Use requires() here to declare subsystem dependencies
-        requires(Robot.bumpTestCalibrate);
+        // eg. requires(chassis);
+    	requires(Robot.calibrator);
     }
 
     // Called just before this Command runs the first time
     protected void initialize() {
-    	Robot.bumpTestCalibrate.reset();
+    	Robot.calibrator.reset();
     }
 
     // Called repeatedly when this Command is scheduled to run
     protected void execute() {
-    	Robot.bumpTestCalibrate.BumpTestRun();
+    	Robot.calibrator.BumpTestRun();
+    	Robot.calibrator.updateDashboard();
     }
 
     // Make this return true when this Command no longer needs to run execute()
     protected boolean isFinished() {
-        return false;
+    	return false;
     }
 
     // Called once after isFinished returns true
@@ -36,6 +38,6 @@ public class BumpTestCalibrationCalibration extends Command {
     // Called when another command which requires one or more of the same
     // subsystems is scheduled to run
     protected void interrupted() {
-    	Robot.bumpTestCalibrate.MotorOff();
+    	Robot.tester.MotorOff();
     }
 }

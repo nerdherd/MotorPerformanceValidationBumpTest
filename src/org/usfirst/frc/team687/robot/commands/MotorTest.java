@@ -7,21 +7,22 @@ import edu.wpi.first.wpilibj.command.Command;
 /**
  *
  */
-public class BumpTestCommand extends Command {
+public class MotorTest extends Command {
 
-    public BumpTestCommand() {
+    public MotorTest() {
         // Use requires() here to declare subsystem dependencies
-        requires(Robot.bumpTest);
+        requires(Robot.tester);
     }
 
     // Called just before this Command runs the first time
     protected void initialize() {
-    	Robot.bumpTest.reset();
+    	Robot.tester.reset();
     }
 
     // Called repeatedly when this Command is scheduled to run
     protected void execute() {
-    	Robot.bumpTest.BumpTestRun();
+    	Robot.tester.BumpTestRun();
+    	Robot.tester.updateDashboard();
     }
 
     // Make this return true when this Command no longer needs to run execute()
@@ -36,6 +37,6 @@ public class BumpTestCommand extends Command {
     // Called when another command which requires one or more of the same
     // subsystems is scheduled to run
     protected void interrupted() {
-    	Robot.bumpTest.MotorOff();
+    	Robot.tester.MotorOff();
     }
 }

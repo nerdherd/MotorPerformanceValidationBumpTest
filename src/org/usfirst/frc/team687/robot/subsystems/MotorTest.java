@@ -12,7 +12,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
  */
-public class BumpTestTest extends Subsystem {
+public class MotorTest extends Subsystem {
 
 	CANTalon motor;
 	double K;
@@ -29,7 +29,7 @@ public class BumpTestTest extends Subsystem {
 	boolean positive_counter;
 	boolean negative_counter;
 	
-	public BumpTestTest(){
+	public MotorTest(){
 		motor = new CANTalon(RobotMap.CANTalonPort1);
 		motor.changeControlMode(TalonControlMode.Voltage);
 		motor.setFeedbackDevice(FeedbackDevice.CtreMagEncoder_Relative);
